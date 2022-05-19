@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
+const encrypt = require("mongoose-encryption");
 const mongoose = require("mongoose");
 const port = 3000;
 
@@ -12,17 +13,24 @@ mongoose.connect("mongodb+srv://manan:96nx6EtxUOn4Syf0@cluster0.dxifr.mongodb.ne
 })
 
 
+
+
+
 const userSchema = new mongoose.Schema({
     email:{
         type:String,
-        required:true
+        required:true,
+        unique:true
     },
     password:{
         type:String,
         required:true
     }
-})
+});
 
+// you have to use this mongoose plugin befor creating model of using that schema.  
+ const secret = "This is our little secret."
+userSchema.plugin(encrypt,{secret : secret,encryptedFields:["password"]});  
 
 
 
@@ -82,6 +90,7 @@ app.post("/login",function(req,res){
     User.findOne({email : username},function(err,foundUser){
         if(err){
             console.log(err.message);
+            res.render("login",{err})
         }else{
             if(foundUser){
                 if(foundUser.password === password){
