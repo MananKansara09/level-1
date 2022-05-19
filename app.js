@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
@@ -6,7 +7,9 @@ const mongoose = require("mongoose");
 const port = 3000;
 
 
-mongoose.connect("mongodb+srv://manan:96nx6EtxUOn4Syf0@cluster0.dxifr.mongodb.net/?retryWrites=true&w=majority").then(()=>{
+
+
+mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_USER_PASSWORD}@cluster0.dxifr.mongodb.net/?retryWrites=true&w=majority`).then(()=>{
     console.log("Your database connection succesfully!")
 }).catch((err)=>{
     console.log(err.message);
@@ -29,7 +32,7 @@ const userSchema = new mongoose.Schema({
 });
 
 // you have to use this mongoose plugin befor creating model of using that schema.  
- const secret = "This is our little secret."
+ const secret = process.env.MONGOOSE_ENCRYPTION_SECRET
 userSchema.plugin(encrypt,{secret : secret,encryptedFields:["password"]});  
 
 
