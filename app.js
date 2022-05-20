@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const encrypt = require("mongoose-encryption");
 const mongoose = require("mongoose");
+const md5 = require("md5")
 const port = 3000;
 
 
@@ -31,9 +32,7 @@ const userSchema = new mongoose.Schema({
     }
 });
 
-// you have to use this mongoose plugin befor creating model of using that schema.  
- const secret = process.env.MONGOOSE_ENCRYPTION_SECRET
-userSchema.plugin(encrypt,{secret : secret,encryptedFields:["password"]});  
+ 
 
 
 
@@ -70,7 +69,7 @@ app.get("/register",(req,res)=>{
 app.post("/register",function(req,res){
     const NewUser = new User({
         email : req.body.username,
-        password : req.body.password
+        password : md5(req.body.password)
     })
 
     NewUser.save(function(err){
@@ -86,17 +85,16 @@ app.post("/register",function(req,res){
 
 
 app.post("/login",function(req,res){
-    const username = req.body.username
-    const password = req.body.password 
+    
+ 
 
-
-    User.findOne({email : username},function(err,foundUser){
+    User.findOne({email : req.body.username},function(err,foundUser){
         if(err){
             console.log(err.message);
             res.render("login",{err})
         }else{
             if(foundUser){
-                if(foundUser.password === password){
+                if(foundUser.password === md5(req.body.password)){
                     res.render("Secret");
                 }
             }
